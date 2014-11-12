@@ -1,0 +1,1 @@
+sq = angular.module('sq')
