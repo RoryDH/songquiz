@@ -3,4 +3,5 @@ sq = angular.module('sq', [
   'ngResource'
   'ngAnimate'
   'mgcrea.ngStrap'
+  'spotify'
 ])

@@ -13,15 +13,16 @@
   <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="/public/comp.css">
 
-  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/async/0.9.0/async.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/async/0.9.0/async.js"></script>
+  <script src="//cdn.jsdelivr.net/howler.js/1.1.25/howler.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-animate.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-animate.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-sanitize.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-route.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-resource.min.js"></script>
-  <script type="text/javascript" src="//cdn.jsdelivr.net/angular.strap/2.1.3/angular-strap.min.js"></script>
-  <script type="text/javascript" src="//cdn.jsdelivr.net/angular.strap/2.1.3/angular-strap.tpl.min.js"></script>
-  <script type="text/javascript" src="/public/comp.js"></script>
+  <script src="//cdn.jsdelivr.net/angular.strap/2.1.3/angular-strap.min.js"></script>
+  <script src="//cdn.jsdelivr.net/angular.strap/2.1.3/angular-strap.tpl.min.js"></script>
+  <script src="/public/comp.js"></script>
 </head>
 
 <body ng-controller="MainCtrl">
@@ -37,7 +38,56 @@
   </div>
 
   <script type="text/ng-template" id="game.html">
-    {{message}}
+    <h4 ng-show="attemptIndex >= 0 && !currentA">Loading question...</h4>
+    <div class="well well-sm">
+      <ul class="list-inline">
+        <li>
+          Question: <strong>{{attemptIndex + 1}}/{{attempts.length}}</strong>
+        </li>
+      </ul>
+    </div>
+    <div class="row question" ng-if="currentA">
+      <div class="col-md-7">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <i class="fa fa-question-circle"></i> Question
+          </div>
+          <div class="panel-body">
+            <h3 ng-if="currentA.question.kind === 'artist'">
+              <i class="fa fa-user"></i> Name the artist
+            </h3>
+          </div>
+          <div class="panel-footer" ng-bind="playbackStatus"></div>
+        </div>
+        <button class="btn btn-primary btn-block btn-lg" ng-show="currentA.answeredIndex !== null" ng-click="submitAnswer()">
+          <i class="fa fa-check-circle-o"></i>
+          Final Answer as
+          '<span ng-bind="currentA.question.answerStrings[currentA.answeredIndex]"></span>'
+        </button>
+      </div>
+      <div class="col-md-5">
+        <div class="list-group">
+          <a ng-repeat="answerString in currentA.question.answerStrings track by $index"
+            href=""
+            class="list-group-item"
+            ng-class="{'active': currentA.answeredIndex === $index}"
+            ng-click="currentA.answeredIndex = $index">
+
+            <h4 class="list-group-item-heading" ng-bind="answerString"></h4>
+            <p class="list-group-item-text" ng-bind="$index"></p>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div ng-if="false">
+      <pre ng-bind="currentA | json"></pre>
+      <div class="well">
+        index: {{attemptIndex}}
+        <br>
+      </div>
+      <pre ng-bind="attempts | json"></pre>
+    </div>
   </script>
 </body>
 </html>

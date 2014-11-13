@@ -6,10 +6,14 @@ sq.config([
   '$modalProvider'
   '$popoverProvider'
   '$dropdownProvider'
-  ($routeProvider, $tooltipProvider, $modalProvider, $popoverProvider, $dropdownProvider) ->
+  'SpotifyProvider'
+  ($routeProvider, $tooltipProvider, $modalProvider, $popoverProvider, $dropdownProvider, SpotifyProvider) ->
     $routeProvider.when('/',
       templateUrl: 'game.html'
-      controller: 'GameCtrl'
+      controller: 'GameCtrl',
+      resolve:
+        songsJSON: ($http) ->
+          $http.get('/public/songs.json')
     )
 
     angular.extend $tooltipProvider.defaults,
@@ -29,6 +33,8 @@ sq.config([
 
     angular.extend $dropdownProvider.defaults,
       animation: null
+
+    SpotifyProvider.setClientId('d9f8807019e343318c130038ad5206cd')
 ])
 
 sq.run([
