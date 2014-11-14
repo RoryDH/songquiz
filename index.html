@@ -10,7 +10,7 @@
   <meta name="author" content="Rory Hughes">
 
   <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css">
-  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="/public/comp.css">
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/async/0.9.0/async.js"></script>
@@ -28,7 +28,7 @@
 <body ng-controller="MainCtrl">
   <div class="container">
     <div class="page-header">
-      <h1>SongQuiz <small>Powered by Spotify</small></h1>
+      <h1>SongQuiz <small>Powered by <i class="fa fa-spotify"></i> Spotify</small></h1>
     </div>
     <div class="row">
       <div class="main-page">
@@ -38,7 +38,6 @@
   </div>
 
   <script type="text/ng-template" id="game.html">
-    <h4 ng-show="attemptIndex >= 0 && !currentA">Loading question...</h4>
     <div class="well well-sm">
       <ul class="list-inline">
         <li>
@@ -46,6 +45,7 @@
         </li>
       </ul>
     </div>
+    <h4 ng-show="attemptIndex >= 0 && !currentA">Loading question...</h4>
     <div class="row question" ng-if="currentA">
       <div class="col-md-7">
         <div class="panel panel-primary">
@@ -57,7 +57,23 @@
               <i class="fa fa-user"></i> Name the artist
             </h3>
           </div>
-          <div class="panel-footer" ng-bind="playbackStatus"></div>
+          <div class="panel-footer">
+            <span ng-show="playbackStatus === 0">
+              <i class="fa fa-circle-o-notch fa-spin"></i> Loading audio...
+            </span>
+            <span ng-show="playbackStatus === 2">Audio Finished</span>
+            <span ng-show="playbackStatus === 3"><i class="fa fa-close"></i> Error loading audio!</span>
+
+            <div ng-show="playbackStatus === 1">
+              <i class="fa fa-play"></i> Audio Playing!
+              <div class="progress">
+                <div class="progress-bar progress-bar-striped"
+                  role="progressbar"
+                  ng-style="{width: '' + playBarLoc + '%'}">
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <button class="btn btn-primary btn-block btn-lg" ng-show="currentA.answeredIndex !== null" ng-click="submitAnswer()">
           <i class="fa fa-check-circle-o"></i>
@@ -66,6 +82,7 @@
         </button>
       </div>
       <div class="col-md-5">
+        <strong>Select an answer:</strong>
         <div class="list-group">
           <a ng-repeat="answerString in currentA.question.answerStrings track by $index"
             href=""
@@ -74,7 +91,7 @@
             ng-click="currentA.answeredIndex = $index">
 
             <h4 class="list-group-item-heading" ng-bind="answerString"></h4>
-            <p class="list-group-item-text" ng-bind="$index"></p>
+            <!-- <p class="list-group-item-text" ng-bind="$index"></p> -->
           </a>
         </div>
       </div>
