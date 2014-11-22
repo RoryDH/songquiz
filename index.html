@@ -28,7 +28,7 @@
 <body ng-controller="MainCtrl">
   <div class="container">
     <div class="page-header">
-      <h1>SongQuiz <small>Powered by <i class="fa fa-spotify"></i> Spotify</small></h1>
+      <h1><i class="fa fa-music"></i> SongQuiz <small>Powered by <i class="fa fa-spotify"></i> Spotify</small></h1>
     </div>
     <div class="row">
       <div class="main-page">
@@ -37,62 +37,105 @@
     </div>
   </div>
 
+  <script type="text/ng-template" id="home.html">
+    <h3 class="text-center">Choose a quiz:</h3>
+    <div class="panel panel-default"><div class="panel-body quiz-chooser">
+      <a ng-repeat="name in quizNames" ng-href="#/{{name}}" class="btn btn-primary btn-lg">
+        <i class="fa fa-play"></i>
+        <span ng-bind="name"></span>
+      </a>
+    </div></div>
+  </script>
+
   <script type="text/ng-template" id="game.html">
-    <div class="well well-sm">
-      <ul class="list-inline">
+    <div class="well well-sm game-status">
+      <ul class="list-inline" ng-if="!quizFinished">
         <li>
           Question: <strong>{{attemptIndex + 1}}/{{attempts.length}}</strong>
         </li>
       </ul>
+      <ul class="list-inline" ng-if="quizFinished">
+        <li>
+          <strong ng-bind="percentageCorrect"></strong>% correct!
+        </li>
+        <li>
+          <strong ng-bind="correctCount"></strong>/<span ng-bind="attempts.length"></span> correct
+        </li>
+        <li>
+          <a href="/" class="btn btn-success">Play again <i class="fa fa-chevron-right"></i></a>
+        </li>
+      </ul>
     </div>
-    <h4 ng-show="attemptIndex >= 0 && !currentA">Loading question...</h4>
-    <div class="row question" ng-if="currentA">
-      <div class="col-md-7">
-        <div class="panel panel-primary">
-          <div class="panel-heading">
-            <i class="fa fa-question-circle"></i> Question
-          </div>
-          <div class="panel-body">
-            <h3 ng-if="currentA.question.kind === 'artist'">
-              <i class="fa fa-user"></i> Name the artist
-            </h3>
-          </div>
-          <div class="panel-footer">
-            <span ng-show="playbackStatus === 0">
-              <i class="fa fa-circle-o-notch fa-spin"></i> Loading audio...
-            </span>
-            <span ng-show="playbackStatus === 2">Audio Finished</span>
-            <span ng-show="playbackStatus === 3"><i class="fa fa-close"></i> Error loading audio!</span>
 
-            <div ng-show="playbackStatus === 1">
-              <i class="fa fa-play"></i> Audio Playing!
-              <div class="progress">
-                <div class="progress-bar progress-bar-striped"
-                  role="progressbar"
-                  ng-style="{width: '' + playBarLoc + '%'}">
+    <div ng-if="!quizFinished">
+      <h4 ng-show="attemptIndex >= 0 && !currentA">Loading question...</h4>
+      <div class="row question" ng-if="currentA">
+        <div class="col-md-7">
+          <div class="panel panel-primary">
+            <div class="panel-heading">
+              <i class="fa fa-question-circle"></i> Question
+            </div>
+            <div class="panel-body">
+              <h3 ng-if="currentA.question.kind === 'artist'">
+                <i class="fa fa-user"></i> Name the artist
+              </h3>
+            </div>
+            <div class="panel-footer">
+              <span ng-show="playbackStatus === 0">
+                <i class="fa fa-circle-o-notch fa-spin"></i> Loading audio...
+              </span>
+              <span ng-show="playbackStatus === 2">Audio Finished</span>
+              <span ng-show="playbackStatus === 3"><i class="fa fa-close"></i> Error loading audio!</span>
+
+              <div ng-show="playbackStatus === 1">
+                <i class="fa fa-play"></i> Audio Playing!
+                <div class="progress">
+                  <div class="progress-bar progress-bar-striped"
+                    role="progressbar"
+                    ng-style="{width: '' + playBarLoc + '%'}">
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          <button class="btn btn-primary btn-block btn-lg" ng-show="currentA.answeredIndex !== null" ng-click="submitAnswer()">
+            <i class="fa fa-check-circle-o"></i>
+            Final Answer as
+            '<span ng-bind="currentA.question.answerStrings[currentA.answeredIndex]"></span>'
+          </button>
         </div>
-        <button class="btn btn-primary btn-block btn-lg" ng-show="currentA.answeredIndex !== null" ng-click="submitAnswer()">
-          <i class="fa fa-check-circle-o"></i>
-          Final Answer as
-          '<span ng-bind="currentA.question.answerStrings[currentA.answeredIndex]"></span>'
-        </button>
-      </div>
-      <div class="col-md-5">
-        <strong>Select an answer:</strong>
-        <div class="list-group">
-          <a ng-repeat="answerString in currentA.question.answerStrings track by $index"
-            href=""
-            class="list-group-item"
-            ng-class="{'active': currentA.answeredIndex === $index}"
-            ng-click="currentA.answeredIndex = $index">
+        <div class="col-md-5">
+          <strong>Select an answer:</strong>
+          <div class="list-group">
+            <a ng-repeat="answerString in currentA.question.answerStrings track by $index"
+              href=""
+              class="list-group-item"
+              ng-class="{'active': currentA.answeredIndex === $index}"
+              ng-click="currentA.answeredIndex = $index">
 
-            <h4 class="list-group-item-heading" ng-bind="answerString"></h4>
-            <!-- <p class="list-group-item-text" ng-bind="$index"></p> -->
-          </a>
+              <h4 class="list-group-item-heading" ng-bind="answerString"></h4>
+              <!-- <p class="list-group-item-text" ng-bind="$index"></p> -->
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div ng-if="quizFinished">
+      <div ng-repeat="attempt in attempts" class="panel panel-default result-panel" ng-class="[attempt.correct ? 'panel-success' : 'panel-danger']">
+        <div class="panel-heading">
+          <i ng-class="['fa', (attempt.correct ? 'fa-check-square' : 'fa-close')]"></i>
+          {{$index + 1}}
+        </div>
+        <div class="panel-body">
+          <strong>
+            Correct answer: {{attempt.question.answerStrings[attempt.question.correctIndex]}}
+          </strong>
+          <br>
+          <span ng-hide="attempt.correct">You answered: {{attempt.question.answerStrings[attempt.answeredIndex]}}</span>
+          <small class="text-muted">
+            {{attmept.question.correctId}}
+          </small>
         </div>
       </div>
     </div>

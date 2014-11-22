@@ -9,11 +9,11 @@ sq.config([
   'SpotifyProvider'
   ($routeProvider, $tooltipProvider, $modalProvider, $popoverProvider, $dropdownProvider, SpotifyProvider) ->
     $routeProvider.when('/',
+      templateUrl: 'home.html'
+      controller: 'HomeCtrl'
+    ).when('/:quizName',
       templateUrl: 'game.html'
-      controller: 'GameCtrl',
-      resolve:
-        songsJSON: ($http) ->
-          $http.get('/public/songs.json')
+      controller: 'GameCtrl'
     )
 
     angular.extend $tooltipProvider.defaults,

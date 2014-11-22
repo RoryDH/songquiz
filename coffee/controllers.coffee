@@ -4,6 +4,15 @@ sq.controller("MainCtrl", [
   '$scope'
   '$http'
   ($scope, $http) ->
+    $http.get('/public/songs.json').success((songsJSON) ->
+      $scope.songsJSON = songsJSON
+      $scope.quizNames = Object.keys(songsJSON)
+    )
+])
+
+sq.controller("HomeCtrl", [
+  '$scope'
+  ($scope) ->
 
 ])
 
@@ -12,12 +21,17 @@ sq.controller("GameCtrl", [
   '$http'
   '$timeout'
   '$interval'
+  '$location'
+  '$routeParams'
   'Random'
   'Song'
   'Question'
-  'songsJSON'
-  ($scope, $http, $timeout, $interval, Random, Song, Question, songsJSON) ->
-    songIds = Random.shuffle(songsJSON.data.song_uris).slice(0,3)
+  ($scope, $http, $timeout, $interval, $location, $routeParams, Random, Song, Question) ->
+    return $location.path('/') unless $scope.songsJSON
+    song_uris = $scope.songsJSON[$routeParams.quizName]
+    return $location.path('/') unless song_uris
+
+    songIds = Random.shuffle(song_uris).slice(0,3)
     $scope.attempts = songIds.map((id) ->
       songId: id
       answeredIndex: null
@@ -45,10 +59,8 @@ sq.controller("GameCtrl", [
         unless howlInstance
           $interval.cancel(playBarTimer)
           return
-
         $scope.playBarLoc = Math.floor((howlInstance.pos() / 30) * 100)
-        console.log("p")
-      , 100, 300)
+      , 300, 100)
 
     nextAttempt = ->
       $scope.currentA = null
@@ -80,9 +92,20 @@ sq.controller("GameCtrl", [
       howlInstance.unload()
       setPlaybackStatus(-1)
       if $scope.attemptIndex >= $scope.attempts.length - 1
-        alert('done')
-        return
-      nextAttempt()
+        finishQuiz()
+      else
+        nextAttempt()
+
+    finishQuiz = ->
+      $scope.correctCount = 0
+      $scope.attempts.forEach (attempt) ->
+        if attempt.answeredIndex is attempt.question.correctIndex
+          attempt.correct = true
+          $scope.correctCount += 1
+
+      $scope.percentageCorrect = Math.round(10000 * ($scope.correctCount / $scope.attempts.length)) / 100
+      $scope.quizFinished = true
+      $scope.currentA = null
 
     nextAttempt()
 
