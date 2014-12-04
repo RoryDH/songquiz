@@ -44,6 +44,9 @@ sq.service('Question', [
   'Random'
   (Song, spotifyCache, Random) ->
     questionKinds = ['artist', 'name']
+    bannedWrongAnswers = ['Ben Folds', 'Ben Folds Five']
+    wrongAnswerAllowed = (answer) -> bannedWrongAnswers.indexOf(answer) is -1
+
     return class Question
       constructor: (correctUri, cb) ->
         @kind = 'artist'
@@ -59,7 +62,7 @@ sq.service('Question', [
 
       generateWrongs: (cb) ->
         spotifyCache.get('getRelatedArtists', [@correctSong.artists[0].id], (response) ->
-          cb(response.artists.map((artist) -> artist.name).slice(0, 4))
+          cb(response.artists.map((artist) -> artist.name).filter(wrongAnswerAllowed).slice(0, 4))
         )
       
 ])
